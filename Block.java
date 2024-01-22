@@ -1,59 +1,49 @@
 public class Block {
-    private static final double halfExtent = 0.5;
-    private final Vector min;
-    private final Vector max;
+    private final Vector position;
+    public static final double HALF_EXTENT = 0.5;
+    private final Vector[] bounds;
 
     public Block(double x, double y, double z) {
-        min = new Vector(x - halfExtent, y - halfExtent, z - halfExtent);
-        max = new Vector(x + halfExtent, y + halfExtent, z + halfExtent);
+        position = new Vector(x,y,z);
+        bounds = new Vector[] {
+                new Vector(x - HALF_EXTENT, y - HALF_EXTENT, z - HALF_EXTENT),
+                new Vector(x + HALF_EXTENT, y + HALF_EXTENT, z + HALF_EXTENT)
+        };
     }
 
-    public double intersects(Vector origin, Vector direction) {
-        double t_min = (direction.getX() != 0) ? (min.getX() - origin.getX()) / direction.getX() : Double.NEGATIVE_INFINITY;
-        double t_max = (direction.getX() != 0) ? (max.getX() - origin.getX()) / direction.getX() : Double.POSITIVE_INFINITY;
+    public Block(Vector position) {
+        this.position = position;
+        bounds = new Vector[] {
+                new Vector(position.getX() - HALF_EXTENT, position.getY() - HALF_EXTENT, position.getZ() - HALF_EXTENT),
+                new Vector(position.getX() + HALF_EXTENT, position.getY() + HALF_EXTENT, position.getZ() + HALF_EXTENT)
+        };
+    }
 
-        double t;
+    public Vector getPosition() {
+        return position.copy();
+    }
 
-        if(t_min > t_max) {
-            t = t_min;
-            t_min = t_max;
-            t_max = t;
-        }
+    public Vector[] getBounds() {
+        return bounds;
+    }
 
-        double ty_min = (direction.getY() != 0) ? (min.getY() - origin.getY()) / direction.getY() : Double.NEGATIVE_INFINITY;
-        double ty_max = (direction.getY() != 0) ? (max.getY() - origin.getY()) / direction.getY() : Double.POSITIVE_INFINITY;
-
-        if(ty_min > ty_max) {
-            t = ty_min;
-            ty_min = ty_max;
-            ty_max = t;
-        }
-
-        if(t_min > ty_max || ty_min > t_max) {
+    public double intersects(Ray ray) {
+        double x_min = (bounds[ray.sign[0]].getX() - ray.orig.getX()) * ray.dir.getX();
+        double x_max = (bounds[1 - ray.sign[0]].getX() - ray.orig.getX()) * ray.dir.getX();
+        double y_min = (bounds[ray.sign[1]].getY() - ray.orig.getY()) * ray.dir.getY();
+        double y_max = (bounds[1 - ray.sign[1]].getY() - ray.orig.getY()) * ray.dir.getY();
+        if(x_min > y_max || y_min > x_max) {
             return -1;
         }
-
-        if(ty_min > t_min) {
-            t_min = ty_min;
-        }
-
-        if(ty_max < t_max) {
-            t_max = ty_max;
-        }
-
-        double tz_min = (direction.getZ() != 0) ? (min.getZ() - origin.getZ()) / direction.getZ() : Double.NEGATIVE_INFINITY;
-        double tz_max = (direction.getZ() != 0) ? (max.getZ() - origin.getZ()) / direction.getZ() : Double.POSITIVE_INFINITY;
-
-        if(tz_min > tz_max) {
-            t = tz_min;
-            tz_min = tz_max;
-            tz_max = t;
-        }
-
-        if(t_min > tz_max || tz_min > t_max) {
+        x_min = Math.max(y_min, x_min);
+        x_max = Math.min(x_max, y_max);
+        double z_min = (bounds[ray.sign[2]].getZ() - ray.orig.getZ()) * ray.dir.getZ();
+        double z_max = (bounds[1 - ray.sign[2]].getZ() - ray.orig.getZ()) * ray.dir.getZ();
+        if((x_min > z_max) || (z_min > x_max)) {
             return -1;
         }
-        return t_min;
+        double distance = Math.min(Math.max(x_min, z_min), Math.min(x_max, z_max));
+        return (distance > 0) ? distance : -1;
     }
 
 }
