@@ -5,6 +5,11 @@ public class Vector {
         this.x = x;
         this.y = y;
         this.z = z;
+
+    }
+
+    public Vector negate() {
+        return new Vector(-x, -y, -z);
     }
 
     public Vector copy() {
@@ -17,12 +22,6 @@ public class Vector {
         z += other.z;
     }
 
-    public void sub(Vector other) {
-        x -= other.x;
-        y -= other.y;
-        z -= other.z;
-    }
-
     public void mul(double k) {
         x *= k;
         y *= k;
@@ -30,11 +29,11 @@ public class Vector {
     }
 
     public void normalize() {
-        double length = Math.sqrt(x * x + y * y + z * z);
-        if(length != 0) {
-            x /= length;
-            y /= length;
-            z /= length;
+        double len = length();
+        if(len != 0) {
+            x /= len;
+            y /= len;
+            z /= len;
         }
     }
 
@@ -59,6 +58,14 @@ public class Vector {
         normalize();
     }
 
+    public double length() {
+        return Math.sqrt(x * x + y * y + z * z);
+    }
+
+    public boolean isOrthogonal(Vector other) {
+        return Math.round(x * other.x + y * other.y + z * other.z) == 0;
+    }
+
     void ignoreHeight() {
         z = 0;
     }
@@ -73,5 +80,9 @@ public class Vector {
 
     public double getZ() {
         return z;
+    }
+
+    public Vector inverted() {
+        return new Vector(1.0 / x, 1.0 / y, 1.0 / z);
     }
 }
