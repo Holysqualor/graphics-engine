@@ -1,47 +1,58 @@
-import java.awt.Color;
-import java.awt.Graphics;
-import javax.swing.JPanel;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.util.stream.IntStream;
+import javax.swing.*;
 
 public class Screen extends JPanel {
-    private static final double rayStep = 0.01;
-    private static final double maxDist = 10;
-    private final int pixelSize;
-    private final Player player;
+    public static final double MAX_DISTANCE = 10;
+    public static int SKY = Color.CYAN.getRGB();
+    private static final double DEEP = 0.5;
 
-    public Screen(Player player) {
-        this.player = player;
-        pixelSize = 10;
+    private final BufferedImage image;
+    private final Camera camera;
+    private final int width, height;
+    private final double aspect;
+
+    public Screen(int width, int height, Camera camera) {
+        this.camera = camera;
+        this.width = width;
+        this.height = height;
+        aspect = (double) width / height;
+        image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
     }
 
-    private Color renderPixel(double h, double v) {
-        Vector ray = new Vector(player), dir = new Vector(h, v);
-        dir.setSpeed(rayStep);
-        for(double i = 0; i < maxDist; i += rayStep) {
-            if(player.getWorld().contains(ray) != null) {
-                double brightness = 1.0 - (i / maxDist);
-                return new Color((int) (brightness * 255), (int) (brightness * 255), (int) (brightness * 255));
+    private int getPixel(Ray ray) {
+        int color = SKY;
+        double distance = Double.POSITIVE_INFINITY;
+        for(Block block : camera.getScene()) {
+            double collision = block.intersects(ray);
+            if(collision != -1 && collision < distance) {
+                distance = collision;
+                color = block.getColor();
             }
-            ray.add(dir);
         }
-        return Color.BLACK;
+        return color;
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        int h, v = (player.getVertical() + getHeight() / 2 / pixelSize + 360) % 360;
-        for(int i = 0; i < getHeight(); i += pixelSize) {
-            h = (player.getHorizontal() + getWidth() / 2 / pixelSize + 360) % 360;
-            for(int j = 0; j < getWidth(); j += pixelSize) {
-                g.setColor(renderPixel(Math.toRadians(h), Math.toRadians(v)));
-                g.fillRect(j, i, pixelSize, pixelSize);
-                h = (h + 359) % 360;
-            }
-            v = (v + 359) % 360;
-        }
-        g.setColor(Color.magenta);
-        g.fillRect(getWidth() / 2 - 9, getHeight() / 2, 20, 1);
-        g.setColor(Color.magenta);
-        g.fillRect(getWidth() / 2, getHeight() / 2 - 10, 2, 20);
+        IntStream.range(0, height).parallel().forEach(i -> IntStream.range(0, width).parallel().forEach(j -> {
+            double x = (2.0 * j / width - 1.0) * aspect * DEEP;
+            double y = (1.0 - 2.0 * i / height) * DEEP;
+            Vector right = camera.getRight();
+            right.mul(x);
+            Vector up = camera.getUp();
+            up.mul(y);
+            Vector direction = camera.getForward();
+            direction.add(right);
+            direction.add(up);
+            direction.normalize();
+            image.setRGB(j, i, getPixel(new Ray(camera.getPosition(), direction)));
+        }));
+        g.drawImage(image, 0,0,this);
+        g.setColor(Color.WHITE);
+        g.fillRect(width / 2 - 9, height / 2, 20, 2);
+        g.fillRect(width / 2, height / 2 - 9, 2, 20);
     }
 }
