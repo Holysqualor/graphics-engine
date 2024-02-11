@@ -1,48 +1,79 @@
 public class Block {
-    private final Vector position;
-    public static final double EXTENT = 0.5;
-    private static final double HALF_EXTENT = EXTENT * 0.5;
-    private final Vector[] bounds;
-    private final int color;
+    private final float[][] bounds;
 
-    public Block(Vector position, int color) {
-        this.position = position;
-        bounds = new Vector[] {
-                new Vector(position.getX() - HALF_EXTENT, position.getY() - HALF_EXTENT, position.getZ() - HALF_EXTENT),
-                new Vector(position.getX() + HALF_EXTENT, position.getY() + HALF_EXTENT, position.getZ() + HALF_EXTENT)
+    public Block(float x, float y, float z) {
+        bounds = new float[][] {
+                {x, y, z},
+                {x + 1, y + 1, z + 1}
         };
-        this.color = color;
     }
 
-    public int getColor() {
-        return color;
+    public Vector getFaceOfCollision(Vector collision) {
+        if(Math.abs(collision.getX() - getMinX()) < 1e-5) {
+            return new Vector(-1, 0, 0);
+        }
+        if(Math.abs(collision.getX() - getMaxX()) < 1e-5) {
+            return new Vector(1, 0, 0);
+        }
+        if(Math.abs(collision.getY() - getMinY()) < 1e-5) {
+            return new Vector(0, -1, 0);
+        }
+        if(Math.abs(collision.getY() - getMaxY()) < 1e-5) {
+            return new Vector(0, 1, 0);
+        }
+        if(Math.abs(collision.getZ() - getMinZ()) < 1e-5) {
+            return new Vector(0, 0, -1);
+        }
+        if(Math.abs(collision.getZ() - getMaxZ()) < 1e-5) {
+            return new Vector(0, 0, 1);
+        }
+        return new Vector(0,0,0);
+    }
+
+    public float intersects(Ray ray) {
+        float xMin = (bounds[ray.sign[0]][0] - ray.origin.getX()) / ray.direction.getX();
+        float xMax = (bounds[1 - ray.sign[0]][0] - ray.origin.getX()) / ray.direction.getX();
+        float yMin = (bounds[ray.sign[1]][1] - ray.origin.getY()) / ray.direction.getY();
+        float yMax = (bounds[1 - ray.sign[1]][1] - ray.origin.getY()) / ray.direction.getY();
+        if(xMin > yMax || yMin > xMax) {
+            return -1;
+        }
+        xMin = Math.max(yMin, xMin);
+        xMax = Math.min(xMax, yMax);
+        float zMin = (bounds[ray.sign[2]][2] - ray.origin.getZ()) / ray.direction.getZ();
+        float zMax = (bounds[1 - ray.sign[2]][2] - ray.origin.getZ()) / ray.direction.getZ();
+        if((xMin > zMax) || (zMin > xMax)) {
+            return -1;
+        }
+        float distance = Math.min(Math.max(xMin, zMin), Math.min(xMax, zMax));
+        return (distance > 0 && distance < Settings.DRAW_DISTANCE) ? distance : -1.0f;
     }
 
     public Vector getPosition() {
-        return position.copy();
+        return new Vector(bounds[0][0], bounds[0][1], bounds[0][2]);
     }
 
-    public Vector[] getBounds() {
-        return bounds;
+    public float getMinX() {
+        return bounds[0][0];
     }
 
-    public double intersects(Ray ray) {
-        double x_min = (bounds[ray.sign[0]].getX() - ray.origin.getX()) / ray.direction.getX();
-        double x_max = (bounds[1 - ray.sign[0]].getX() - ray.origin.getX()) / ray.direction.getX();
-        double y_min = (bounds[ray.sign[1]].getY() - ray.origin.getY()) / ray.direction.getY();
-        double y_max = (bounds[1 - ray.sign[1]].getY() - ray.origin.getY()) / ray.direction.getY();
-        if(x_min > y_max || y_min > x_max) {
-            return -1;
-        }
-        x_min = Math.max(y_min, x_min);
-        x_max = Math.min(x_max, y_max);
-        double z_min = (bounds[ray.sign[2]].getZ() - ray.origin.getZ()) / ray.direction.getZ();
-        double z_max = (bounds[1 - ray.sign[2]].getZ() - ray.origin.getZ()) / ray.direction.getZ();
-        if((x_min > z_max) || (z_min > x_max)) {
-            return -1;
-        }
-        double distance = Math.min(Math.max(x_min, z_min), Math.min(x_max, z_max));
-        return (distance > 0 && distance < Screen.MAX_DISTANCE) ? distance : -1;
+    public float getMinY() {
+        return bounds[0][1];
     }
 
+    public float getMinZ() {
+        return bounds[0][2];
+    }
+
+    public float getMaxX() {
+        return bounds[1][0];
+    }
+
+    public float getMaxY() {
+        return bounds[1][1];
+    }
+
+    public float getMaxZ() {
+        return bounds[1][2];
+    }
 }
