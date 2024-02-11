@@ -3,15 +3,11 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class Game extends JFrame {
-    private static final int scrWidth = 1280;
-    private static final int scrHeight = 720;
-    private static final double sensitivity = 50;
-
     public Game() {
         super("3D Render");
         Camera camera = new Camera();
-        camera.getScene().add(new Block(new Vector(2, 0, 0), Color.green.getRGB()));
-        Screen screen = new Screen(scrWidth, scrHeight, camera);
+        camera.getScene().add(new Block(1f, 0f, 0f));
+        Screen screen = new Screen(Settings.SCREEN_WIDTH, Settings.SCREEN_HEIGHT, camera);
         MouseAdapter adapter = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -23,7 +19,7 @@ public class Game extends JFrame {
             }
         };
 
-        setSize(scrWidth, scrHeight);
+        setSize(Settings.SCREEN_WIDTH, Settings.SCREEN_HEIGHT);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setUndecorated(true);
         setLocationRelativeTo(null);
@@ -51,13 +47,6 @@ public class Game extends JFrame {
         addKeyListener(new KeyboardController(camera, this));
         addMouseListener(adapter);
         addMouseMotionListener(adapter);
-        addMouseWheelListener(e -> {
-            if(e.getWheelRotation() < 0) {
-                camera.takeNextBlock();
-            } else {
-                camera.takePrevBlock();
-            }
-        });
 
         setFocusable(true);
         requestFocusInWindow();
@@ -78,12 +67,12 @@ public class Game extends JFrame {
         int halfHeight = getHeight() / 2;
         int deltaX = e.getX() - halfWidth;
         int deltaY = e.getY() - halfHeight;
-        double aspect = (double) getWidth() / getHeight();
+        float aspect = (float) getWidth() / getHeight();
         if(deltaX != 0) {
-            camera.rotate(Rotation.HORIZONTAL, Math.toRadians(sensitivity * deltaX / halfWidth * aspect));
+            camera.turn(Rotation.HORIZONTAL, Math.toRadians(Settings.SENSITIVITY * deltaX / halfWidth * aspect));
         }
         if(deltaY != 0) {
-            camera.rotate(Rotation.VERTICAL, Math.toRadians(sensitivity * deltaY / halfHeight) * aspect);
+            camera.turn(Rotation.VERTICAL, Math.toRadians(Settings.SENSITIVITY * deltaY / halfHeight) * aspect);
         }
         try {
             Robot robot = new Robot();
@@ -95,6 +84,5 @@ public class Game extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(Game::new);
-
     }
 }
