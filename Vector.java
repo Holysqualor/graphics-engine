@@ -1,11 +1,26 @@
 public class Vector {
-    private double x, y, z;
+    private float x, y, z;
 
-    public Vector(double x, double y, double z) {
+    public Vector(float x, float y, float z) {
         this.x = x;
         this.y = y;
         this.z = z;
 
+    }
+
+    public Vector(Ray ray, float distance) {
+        x = ray.origin.getX() + ray.direction.getX() * distance;
+        y = ray.origin.getY() + ray.direction.getY() * distance;
+        z = ray.origin.getZ() + ray.direction.getZ() * distance;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null || obj.getClass() != getClass()) {
+            return false;
+        }
+        Vector vector = (Vector) obj;
+        return Float.compare(x, vector.x) == 0 && Float.compare(y, vector.y) == 0 && Float.compare(z, vector.z) == 0;
     }
 
     public Vector negate() {
@@ -22,14 +37,14 @@ public class Vector {
         z += other.z;
     }
 
-    public void mul(double k) {
+    public void mul(float k) {
         x *= k;
         y *= k;
         z *= k;
     }
 
     public void normalize() {
-        double len = length();
+        float len = length();
         if(len != 0) {
             x /= len;
             y /= len;
@@ -46,10 +61,10 @@ public class Vector {
     }
 
     public void rotate(Vector other, double theta) {
-        double cosTheta = Math.cos(theta);
-        double sinTheta = Math.sin(theta);
+        float cosTheta = (float) Math.cos(theta);
+        float sinTheta = (float) Math.sin(theta);
 
-        double dotProduct = x * other.x + y * other.y + z * other.z;
+        float dotProduct = x * other.x + y * other.y + z * other.z;
         Vector crossProduct = cross(other);
 
         x = cosTheta * x + (1 - cosTheta) * dotProduct * other.x + sinTheta * crossProduct.x;
@@ -58,27 +73,27 @@ public class Vector {
         normalize();
     }
 
-    public double length() {
-        return Math.sqrt(x * x + y * y + z * z);
+    public float length() {
+        return (float) Math.sqrt(x * x + y * y + z * z);
     }
 
     public boolean isOrthogonal(Vector other) {
-        return Math.round(x * other.x + y * other.y + z * other.z) == 0;
+        return (int) (x * other.x + y * other.y + z * other.z + 0.5) == 0;
     }
 
     void ignoreHeight() {
         z = 0;
     }
 
-    public double getX() {
+    public float getX() {
         return x;
     }
 
-    public double getY() {
+    public float getY() {
         return y;
     }
 
-    public double getZ() {
+    public float getZ() {
         return z;
     }
 }
