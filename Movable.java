@@ -59,20 +59,20 @@ public class Movable {
         position.add(new Vector(0,0, -speed));
     }
 
-    public void turn(Rotation rotation, double angel) {
-        if(rotation == Rotation.HORIZONTAL) {
-            forward.rotate(zAxis, angel);
-            right.rotate(zAxis, angel);
-            up.rotate(zAxis, angel);
-        } else if(rotation == Rotation.VERTICAL) {
-            Vector rotated = up.copy();
-            rotated.rotate(right, angel);
-            if(rotated.isOrthogonal(zAxis)) {
-                return;
-            }
-            forward.rotate(right, angel);
-            up.rotate(right, angel);
+    public void rotateHorizontal(float angel) {
+        forward.rotate(zAxis, angel);
+        right.rotate(zAxis, angel);
+        up.rotate(zAxis, angel);
+    }
+
+    public void rotateVertical(float angel) {
+        Vector rotated = up.copy();
+        rotated.rotate(right, angel);
+        if(rotated.isOrthogonal(zAxis)) {
+            return;
         }
+        forward.rotate(right, angel);
+        up.rotate(right, angel);
     }
 
     public void putBlock() {
