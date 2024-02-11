@@ -69,10 +69,10 @@ public class Game extends JFrame {
         int deltaY = e.getY() - halfHeight;
         float aspect = (float) getWidth() / getHeight();
         if(deltaX != 0) {
-            camera.turn(Rotation.HORIZONTAL, Math.toRadians(Settings.SENSITIVITY * deltaX / halfWidth * aspect));
+            camera.rotateHorizontal((float) Math.toRadians(Settings.SENSITIVITY * deltaX / halfWidth * aspect));
         }
         if(deltaY != 0) {
-            camera.turn(Rotation.VERTICAL, Math.toRadians(Settings.SENSITIVITY * deltaY / halfHeight) * aspect);
+            camera.rotateVertical((float) Math.toRadians(Settings.SENSITIVITY * deltaY / halfHeight) * aspect);
         }
         try {
             Robot robot = new Robot();
