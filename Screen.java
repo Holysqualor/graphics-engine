@@ -4,21 +4,27 @@ import java.util.stream.IntStream;
 import javax.swing.*;
 
 public class Screen extends JPanel {
-    public static final double MAX_DISTANCE = 10;
     public static int SKY = Color.CYAN.getRGB();
-    private static final double DEEP = 0.5;
 
     private final BufferedImage image;
     private final Camera camera;
     private final int width, height;
-    private final double aspect;
+    private final float[] xSign, ySign;
 
     public Screen(int width, int height, Camera camera) {
         this.camera = camera;
         this.width = width;
         this.height = height;
-        aspect = (double) width / height;
+        float aspect = (float) width / height;
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        xSign = new float[width];
+        ySign = new float[height];
+        for(int i = 0; i < width; i++) {
+            xSign[i] = (2f * i / width - 1f) * aspect * Settings.FOV;
+        }
+        for(int i = 0; i < height; i++) {
+            ySign[i] = (1f - 2f * i / height) * Settings.FOV;
+        }
     }
 
     private int getPixel(Ray ray) {
@@ -28,7 +34,7 @@ public class Screen extends JPanel {
             double collision = block.intersects(ray);
             if(collision != -1 && collision < distance) {
                 distance = collision;
-                color = block.getColor();
+                color = Color.PINK.getRGB();
             }
         }
         return color;
@@ -38,12 +44,10 @@ public class Screen extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         IntStream.range(0, height).parallel().forEach(i -> IntStream.range(0, width).parallel().forEach(j -> {
-            double x = (2.0 * j / width - 1.0) * aspect * DEEP;
-            double y = (1.0 - 2.0 * i / height) * DEEP;
             Vector right = camera.getRight();
-            right.mul(x);
+            right.mul(xSign[j]);
             Vector up = camera.getUp();
-            up.mul(y);
+            up.mul(ySign[i]);
             Vector direction = camera.getForward();
             direction.add(right);
             direction.add(up);
