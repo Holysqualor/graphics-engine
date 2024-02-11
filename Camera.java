@@ -1,7 +1,7 @@
 public class Camera extends Movable {
-    private static final double START_SPEED = 0.3;
+    private static final float START_SPEED = 0.3f;
 
     public Camera() {
-        super(new Vector(0,0,0), START_SPEED);
+        super(new Vector(0.0f,0.0f,0.0f), START_SPEED);
     }
 }
