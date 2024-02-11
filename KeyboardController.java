@@ -15,22 +15,22 @@ public class KeyboardController extends KeyAdapter {
     public void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_W:
-                camera.move(Direction.FORWARD);
+                camera.moveForward();
                 break;
             case KeyEvent.VK_S:
-                camera.move(Direction.BACK);
+                camera.moveBackward();
                 break;
             case KeyEvent.VK_A:
-                camera.move(Direction.LEFT);
+                camera.moveLeft();
                 break;
             case KeyEvent.VK_D:
-                camera.move(Direction.RIGHT);
+                camera.moveRight();
                 break;
             case KeyEvent.VK_SPACE:
-                camera.move(Direction.UP);
+                camera.moveUp();
                 break;
             case KeyEvent.VK_SHIFT:
-                camera.move(Direction.DOWN);
+                camera.moveDown();
                 break;
             case KeyEvent.VK_ESCAPE:
                 SwingUtilities.invokeLater(() -> {
