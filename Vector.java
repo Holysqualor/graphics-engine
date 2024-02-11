@@ -60,7 +60,7 @@ public class Vector {
         );
     }
 
-    public void rotate(Vector other, double theta) {
+    public void rotate(Vector other, float theta) {
         float cosTheta = (float) Math.cos(theta);
         float sinTheta = (float) Math.sin(theta);
 
