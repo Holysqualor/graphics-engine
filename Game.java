@@ -3,10 +3,12 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class Game extends JFrame {
+    public static TexturePack TEXTURE_PACK = new TexturePack();
+
     public Game() {
-        super("3D Render");
+        super("Minecraft");
         Camera camera = new Camera();
-        camera.getScene().add(new Block(1f, 0f, 0f));
+        camera.getScene().add(new Block(1f, 0f, 0f, Texture.GRASS));
         Screen screen = new Screen(Settings.SCREEN_WIDTH, Settings.SCREEN_HEIGHT, camera);
         MouseAdapter adapter = new MouseAdapter() {
             @Override
@@ -41,6 +43,16 @@ public class Game extends JFrame {
             @Override
             public void windowClosing(WindowEvent e) {
                 timer.stop();
+            }
+        });
+
+        addMouseWheelListener(e -> {
+            int dir = e.getWheelRotation();
+            if(dir < 0) {
+                camera.takeNextBlock();
+            }
+            if(dir > 0) {
+                camera.takePrevBlock();
             }
         });
 
