@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import javax.swing.*;
 
 public class Screen extends JPanel {
@@ -28,16 +29,16 @@ public class Screen extends JPanel {
     }
 
     private int getPixel(Ray ray) {
-        int color = SKY;
-        double distance = Double.POSITIVE_INFINITY;
+        Block intersected = null;
+        float distance = Float.POSITIVE_INFINITY;
         for(Block block : camera.getScene()) {
-            double collision = block.intersects(ray);
+            float collision = block.intersects(ray);
             if(collision != -1 && collision < distance) {
                 distance = collision;
-                color = Color.PINK.getRGB();
+                intersected = block;
             }
         }
-        return color;
+        return intersected != null ? intersected.getPixel(new Vector(ray, distance)) : SKY;
     }
 
     @Override
