@@ -8,6 +8,7 @@ public class Movable {
     private final Vector up = new Vector(0f, 0f, 1f);
     private static final Vector zAxis = new Vector(0f,0f,1f);
     private final List<Block> scene = new LinkedList<>();
+    private int currentBlock = 0;
     private final float speed;
 
     public Movable(Vector position, float speed) {
@@ -51,6 +52,14 @@ public class Movable {
         position.add(step);
     }
 
+    public void takeNextBlock() {
+        currentBlock = (currentBlock + 1) % Texture.values().length;
+    }
+
+    public void takePrevBlock() {
+        currentBlock = (currentBlock - 1 + Texture.values().length) % Texture.values().length;
+    }
+
     public void moveUp() {
         position.add(new Vector(0,0, speed));
     }
@@ -90,7 +99,7 @@ public class Movable {
             Vector collisionPoint = new Vector(ray, minDistance);
             Vector blockPosition = target.getPosition();
             blockPosition.add(target.getFaceOfCollision(collisionPoint));
-            scene.add(new Block(blockPosition.getX(), blockPosition.getY(), blockPosition.getZ()));
+            scene.add(new Block(blockPosition.getX(), blockPosition.getY(), blockPosition.getZ(), Texture.values()[currentBlock]));
         }
     }
 
