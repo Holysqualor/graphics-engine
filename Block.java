@@ -1,11 +1,13 @@
 public class Block {
     private final float[][] bounds;
+    private final ConcreteTexture concreteTexture;
 
-    public Block(float x, float y, float z) {
+    public Block(float x, float y, float z, Texture texture) {
         bounds = new float[][] {
                 {x, y, z},
                 {x + 1, y + 1, z + 1}
         };
+        concreteTexture = Game.TEXTURE_PACK.getTexture(texture);
     }
 
     public Vector getFaceOfCollision(Vector collision) {
@@ -47,6 +49,18 @@ public class Block {
         }
         float distance = Math.min(Math.max(xMin, zMin), Math.min(xMax, zMax));
         return (distance > 0 && distance < Settings.DRAW_DISTANCE) ? distance : -1.0f;
+    }
+
+    public int getPixel(Vector collision) {
+        Vector point = new Vector(collision.getX() - getMinX(), collision.getY() - getMinY(), collision.getZ() - getMinZ());
+        Vector face = getFaceOfCollision(collision);
+        if(face.getX() != 0) {
+            return concreteTexture.getPixel((int) (point.getY() * concreteTexture.getWidth()), (int) (point.getZ() * concreteTexture.getHeight()), face);
+        }
+        if(face.getY() != 0) {
+            return concreteTexture.getPixel((int) (point.getX() * concreteTexture.getWidth()), (int) (point.getZ() * concreteTexture.getHeight()), face);
+        }
+        return concreteTexture.getPixel((int) (point.getX() * concreteTexture.getWidth()), (int) (point.getY() * concreteTexture.getHeight()), face);
     }
 
     public Vector getPosition() {
