@@ -5,7 +5,6 @@ public class Vector {
         this.x = x;
         this.y = y;
         this.z = z;
-
     }
 
     public Vector(Ray ray, float distance) {
@@ -44,7 +43,7 @@ public class Vector {
     }
 
     public void normalize() {
-        float len = length();
+        float len = (float) Math.sqrt(x * x + y * y + z * z);
         if(len != 0) {
             x /= len;
             y /= len;
@@ -71,10 +70,6 @@ public class Vector {
         y = cosTheta * y + (1 - cosTheta) * dotProduct * other.y + sinTheta * crossProduct.y;
         z = cosTheta * z + (1 - cosTheta) * dotProduct * other.z + sinTheta * crossProduct.z;
         normalize();
-    }
-
-    public float length() {
-        return (float) Math.sqrt(x * x + y * y + z * z);
     }
 
     public boolean isOrthogonal(Vector other) {
